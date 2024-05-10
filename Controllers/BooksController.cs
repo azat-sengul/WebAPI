@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using WebAPI.DTO;
 using WebAPI.Models;
 
 namespace WebAPI.Controllers
@@ -18,7 +19,15 @@ namespace WebAPI.Controllers
         [HttpGet]
         public async Task<IActionResult> GetBook()
         {
-            var books= await _context.Books.ToListAsync();
+            var books= await _context.Books
+            .Include(b => b.Author)
+            .Include(b => b.Publisher)
+            .Select(b => new BookDTO {
+                BookId = b.BookId,
+                BookName = b.BookName,
+                AuthorName = b.Author.AuthorName,
+                PublisherName=b.Publisher.PublisherName,
+            }).ToListAsync();
             return Ok(books);
         }
 
